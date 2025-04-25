@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Strategy Prediction</title>
+    <style>
+        :root {
+            --dark-bg: #1a1a1a;
+            --panel-bg: #222222;
+            --text-color: #f5f5f5;
+            --accent-color: #e52e2e;
+            --border-radius: 4px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .container {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .input-panel, .results-panel {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            padding: 30px;
+            flex: 1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            background-color: #333;
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .column {
+            flex: 1;
+        }
+        
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #c42626;
+        }
+        
+        .results-heading {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .pit-stops-number {
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .strategy-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .strategy-table th {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            color: var(--accent-color);
+        }
+        
+        .strategy-table td {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #888;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .input-panel, .results-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Race Strategy Prediction</h1>
+    
+    <div class="container">
+        <div class="input-panel">
+            <div>
+                <label for="track">Track</label>
+                <select id="track">
+                    <option value="Bahrain International Circuit">Bahrain International Circuit</option>
+                    <option value="Jeddah Corniche Circuit">Jeddah Corniche Circuit</option>
+                    <option value="Suzuka Circuit">Suzuka Circuit</option>
+                    <option value="Miami International Autodrome">Miami International Autodrome</option>
+                    <option value="Imola Circuit">Imola Circuit</option>
+                    <option value="Monaco Circuit">Monaco Circuit</option>
+                    <option value="Circuit de Barcelona-Catalunya">Circuit de Barcelona-Catalunya</option>
+                    <option value="Circuit Gilles Villeneuve">Circuit Gilles Villeneuve</option>
+                    <option value="Red Bull Ring">Red Bull Ring</option>
+                    <option value="Silverstone Circuit">Silverstone Circuit</option>
+                    <option value="Hungaroring">Hungaroring</option>
+                    <option value="Circuit de Spa-Francorchamps">Circuit de Spa-Francorchamps</option>
+                    <option value="Circuit Zandvoort">Circuit Zandvoort</option>
+                    <option value="Monza Circuit">Monza Circuit</option>
+                    <option value="Marina Bay Street Circuit">Marina Bay Street Circuit</option>
+                    <option value="Circuit of the Americas">Circuit of the Americas</option>
+                    <option value="Autódromo Hermanos Rodríguez">Autódromo Hermanos Rodríguez</option>
+                    <option value="Interlagos Circuit">Interlagos Circuit</option>
+                    <option value="Las Vegas Street Circuit">Las Vegas Street Circuit</option>
+                    <option value="Losail International Circuit">Losail International Circuit</option>
+                    <option value="Yas Marina Circuit">Yas Marina Circuit</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="year">Year</label>
+                <select id="year">
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+           
+
+            <div>
+                <label for="team">Team</label>
+                <select id="team">
+                    <option value="Mercedes">Mercedes</option>
+                    <option value="Red Bull Racing">Red Bull Racing</option>
+                    <option value="Ferrari">Ferrari</option>
+                    <option value="McLaren">McLaren</option>
+                    <option value="Aston Martin">Aston Martin</option>
+                    <option value="Alpine">Alpine</option>
+                    <option value="Williams">Williams</option>
+                    <option value="AlphaTauri">AlphaTauri</option>
+                    <option value="Haas F1 Team">Haas F1 Team</option>
+                    <option value="Sauber">Sauber</option>
+                    <option value="Alfa Romeo Racing">Alfa Romeo Racing</option>
+                    <option value="Force India">Force India</option>
+                    <option value="Racing Point">Racing Point</option>
+                    <option value="Renault">Renault</option>
+                    <option value="Toro Rosso">Toro Rosso</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="driver">Driver</label>
+                <select id="driver">
+                    <option value="HAM">Lewis Hamilton</option>
+                    <option value="RUS">George Russell</option>
+                    <option value="VER">Max Verstappen</option>
+                    <option value="PER">Sergio Perez</option>
+                    <option value="LEC">Charles Leclerc</option>
+                    <option value="SAI">Carlos Sainz</option>
+                    <option value="NOR">Lando Norris</option>
+                    <option value="PIA">Oscar Piastri</option>
+                    <option value="ALO">Fernando Alonso</option>
+                    <option value="STR">Lance Stroll</option>
+                    <option value="GAS">Pierre Gasly</option>
+                    <option value="OCO">Esteban Ocon</option>
+                    <option value="ALB">Alex Albon</option>
+                    <option value="SAR">Logan Sargeant</option>
+                    <option value="RIC">Daniel Ricciardo</option>
+                    <option value="TSU">Yuki Tsunoda</option>
+                    <option value="HUL">Nico Hulkenberg</option>
+                    <option value="MAG">Kevin Magnussen</option>
+                    <option value="BOT">Valtteri Bottas</option>
+                    <option value="ZHO">Zhou Guanyu</option>
+                    <option value="VET">Sebastian Vettel</option>
+                    <option value="RAI">Kimi Räikkönen</option>
+                    <option value="MSC">Mick Schumacher</option>
+                    <option value="MAZ">Nikita Mazepin</option>
+                    <option value="LAT">Nicholas Latifi</option>
+                    <option value="KVY">Daniil Kvyat</option>
+                    <option value="GRO">Romain Grosjean</option>
+                    <option value="GIO">Antonio Giovinazzi</option>
+                </select>
+            </div>
+            
+            <div class="row">
+                <div class="column">
+                    <label for="airTemp">Air Temp (°C)</label>
+                    <input type="number" id="airTemp" min="0" max="50" value="25">
+                </div>
+                <div class="column">
+                    <label for="trackTemp">Track Temp (°C)</label>
+                    <input type="number" id="trackTemp" min="0" max="70" value="35">
+                </div>
+            </div>
+            
+            <div>
+                <label for="rainfall">Rainfall</label>
+                <select id="rainfall">
+                    <option value="0">No Rain</option>
+                    <option value="1">Light Rain</option>
+                    <option value="2">Moderate Rain</option>
+                    <option value="4">Heavy Rain</option>
+                </select>
+            </div>
+            
+            <div class="row">
+                <div class="column">
+                    <label for="currentLap">Current Lap</label>
+                    <input type="number" id="currentLap" min="1" max="100" value="1">
+                </div>
+                <div class="column">
+                    <label for="totalLaps">Total Race Laps</label>
+                    <input type="number" id="totalLaps" min="30" max="100" value="60">
+                </div>
+            </div>
+            
+            <button id="predictBtn">PREDICT</button>
+        </div>
+        
+        <div class="results-panel">
+            <h2 class="results-heading">Total Pit Stops</h2>
+            
+            <div id="loadingIndicator" class="loading hidden">Calculating optimal strategy...</div>
+            
+            <div id="resultsContent">
+                <div class="pit-stops-number" id="pitStopsNumber">-</div>
+                
+                <h2 class="results-heading">Pit Stop Lap</h2>
+                
+                <table class="strategy-table">
+                    <thead>
+                        <tr>
+                            <th>Pit Stop Lap</th>
+                            <th>Tyre Compound</th>
+                        </tr>
+                    </thead>
+                    <tbody id="strategyTableBody">
+                        <tr>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Team-Driver mapping definition
+        const teamDrivers = {
+            "Mercedes": [
+                { value: "HAM", name: "Lewis Hamilton" },
+                { value: "RUS", name: "George Russell" }
+            ],
+            "Red Bull Racing": [
+                { value: "VER", name: "Max Verstappen" },
+                { value: "PER", name: "Sergio Perez" }
+            ],
+            "Ferrari": [
+                { value: "LEC", name: "Charles Leclerc" },
+                { value: "SAI", name: "Carlos Sainz" }
+            ],
+            "McLaren": [
+                { value: "NOR", name: "Lando Norris" },
+                { value: "PIA", name: "Oscar Piastri" }
+            ],
+            "Aston Martin": [
+                { value: "ALO", name: "Fernando Alonso" },
+                { value: "STR", name: "Lance Stroll" }
+            ],
+            "Alpine": [
+                { value: "GAS", name: "Pierre Gasly" },
+                { value: "OCO", name: "Esteban Ocon" }
+            ],
+            "Williams": [
+                { value: "ALB", name: "Alex Albon" },
+                { value: "SAR", name: "Logan Sargeant" }
+            ],
+            "AlphaTauri": [
+                { value: "RIC", name: "Daniel Ricciardo" },
+                { value: "TSU", name: "Yuki Tsunoda" }
+            ],
+            "Haas F1 Team": [
+                { value: "HUL", name: "Nico Hulkenberg" },
+                { value: "MAG", name: "Kevin Magnussen" }
+            ],
+            "Sauber": [
+                { value: "BOT", name: "Valtteri Bottas" },
+                { value: "ZHO", name: "Zhou Guanyu" }
+            ],
+            "Alfa Romeo Racing": [
+                { value: "BOT", name: "Valtteri Bottas" },
+                { value: "ZHO", name: "Zhou Guanyu" }
+            ],
+            // Add historical teams and drivers
+            "Force India": [
+                { value: "PER", name: "Sergio Perez" },
+                { value: "OCO", name: "Esteban Ocon" }
+            ],
+            "Racing Point": [
+                { value: "PER", name: "Sergio Perez" },
+                { value: "STR", name: "Lance Stroll" }
+            ],
+            "Renault": [
+                { value: "RIC", name: "Daniel Ricciardo" },
+                { value: "OCO", name: "Esteban Ocon" }
+            ],
+            "Toro Rosso": [
+                { value: "GAS", name: "Pierre Gasly" },
+                { value: "KVY", name: "Daniil Kvyat" }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const teamSelect = document.getElementById('team');
+            const driverSelect = document.getElementById('driver');
+
+            // Set up team/driver relationship
+            teamSelect.addEventListener('change', function () {
+                const selectedTeam = teamSelect.value;
+                const drivers = teamDrivers[selectedTeam] || [];
+
+                // Clear previous options
+                driverSelect.innerHTML = '';
+
+                // Populate with new drivers
+                if (drivers.length > 0) {
+                    drivers.forEach(driver => {
+                        const option = document.createElement('option');
+                        option.value = driver.value;
+                        option.text = driver.name;
+                        driverSelect.add(option);
+                    });
+                } else {
+                    // If no drivers found for team, keep all drivers as fallback
+                    const defaultDrivers = [
+                        { value: "HAM", name: "Lewis Hamilton" },
+                        { value: "RUS", name: "George Russell" },
+                        { value: "VER", name: "Max Verstappen" },
+                        { value: "PER", name: "Sergio Perez" }
+                        // More drivers could be added here
+                    ];
+                    
+                    defaultDrivers.forEach(driver => {
+                        const option = document.createElement('option');
+                        option.value = driver.value;
+                        option.text = driver.name;
+                        driverSelect.add(option);
+                    });
+                }
+            });
+
+            // Initialize driver dropdown
+            teamSelect.dispatchEvent(new Event('change'));
+
+            // Add event listener to predict button
+            document.getElementById('predictBtn').addEventListener('click', predictStrategy);
+        });
+
+        // Function that calls the API
+        // Function that calls the API
+        function predictStrategy() {
+    const track = document.getElementById('track').value;
+    const year = parseInt(document.getElementById('year').value);
+    const team = document.getElementById('team').value;
+    const driver = document.getElementById('driver').value;
+    const airTemp = parseFloat(document.getElementById('airTemp').value);
+    const trackTemp = parseFloat(document.getElementById('trackTemp').value);
+    const rainfall = parseInt(document.getElementById('rainfall').value);
+    const currentLap = parseInt(document.getElementById('currentLap').value);
+    const totalLaps = parseInt(document.getElementById('totalLaps').value);
+    const stintLength = Math.floor(totalLaps / 3); // Default stint length
+    
+    // Show loading indicator
+    document.getElementById('loadingIndicator').classList.remove('hidden');
+    document.getElementById('resultsContent').classList.add('hidden');
+    
+    // Create the request payload
+    const payload = {
+        track: track,
+        year: year,
+        team: team,
+        driver: driver,
+        airTemp: airTemp,
+        trackTemp: trackTemp,
+        rainfall: rainfall,
+        currentLap: currentLap,
+        totalLaps: totalLaps,
+        stintLength: stintLength
+    };
+    
+    console.log("Sending prediction request:", payload);
+    
+    // Make the actual API call to your Flask backend
+    fetch('/predict', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        console.log("Got response with status:", response.status);
+        if (!response.ok) {
+            throw new Error('API request failed with status ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Raw API response:", data);
+        console.log("Number of pit stops:", data.pitstops);
+        console.log("Pit lap sequence:", data.pit_lap_sequence);
+        console.log("Tire sequence:", data.tire_sequence);
+        
+        // Display the results
+        displayResults(
+            data.pitstops,
+            data.pit_lap_sequence,
+            data.tire_sequence
+        );
+        
+        // Log what was passed to displayResults
+        console.log("Values passed to displayResults:", {
+            pitstops: data.pitstops,
+            pit_lap_sequence: data.pit_lap_sequence,
+            tire_sequence: data.tire_sequence
+        });
+        
+        // Hide loading indicator
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        document.getElementById('resultsContent').classList.remove('hidden');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Prediction failed: ' + error.message);
+        
+        // Hide loading indicator
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        document.getElementById('resultsContent').classList.remove('hidden');
+    });
+}
+        // Single implementation of displayResults function
+        function displayResults(numStops, lapNumbers, compounds) {
+            // Update pit stops number
+            document.getElementById('pitStopsNumber').textContent = numStops;
+            
+            // Update strategy table
+            const tableBody = document.getElementById('strategyTableBody');
+            tableBody.innerHTML = '';
+            
+            for (let i = 0; i < numStops; i++) {
+                const row = document.createElement('tr');
+                
+                const lapCell = document.createElement('td');
+                lapCell.textContent = lapNumbers[i];
+                row.appendChild(lapCell);
+                
+                const compoundCell = document.createElement('td');
+                compoundCell.textContent = compounds[i];
+                row.appendChild(compoundCell);
+                
+                tableBody.appendChild(row);
+            }
+            
+            // If no pit stops
+            if (numStops === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 2;
+                cell.textContent = "No pit stops required";
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+            }
+        }
+    </script>
+</body>
+</html>
